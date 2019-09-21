@@ -1,0 +1,63 @@
+from math import sin,cos
+import tkinter as tk
+l1,l2,m1,m2=85,85,5,5
+#The gravity is is negative as an work around for the angles problem.
+g=-9.81
+class DoublePendulum(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        self.title("Double Pendulum")
+        self.canvas=tk.Canvas(self,width=600,height=600,background="#343434")
+        self.canvas.grid(row=0,column=0)
+
+        self.a1_v=0
+        self.a2_v=0
+        self.a1=1
+        self.a2=1
+
+        self.speed=0.1
+        self.after(1,self.Calculate)
+    def Calculate(self):
+
+        self.canvas.delete("pendulum")
+        #all the math is from https://www.myphysicslab.com/pendulum/double-pendulum-en.html
+        num1=(-g*(2*m1+m2)*sin(self.a1))
+        num2=-m2*g*sin(self.a1-2*self.a2)
+        num3=(-2*sin(self.a1-self.a2)*m2*(self.a2_v**2*l1*cos(self.a1-self.a2)))
+        deno1=l1*(2*m1+m2-m2*cos(2*self.a1-2*self.a2))
+
+        self.a1_a=(num1+num2+num3)/deno1
+
+        num4 = 2*sin(self.a1-self.a2)
+        num5=(self.a1_v**2*l1*(m1+m2))
+        num6=g*(m1+m2)*cos(self.a1)
+        num7=self.a2_v**2*l2*m2*cos(self.a1-self.a2)
+        deno2=l2*(2*m1+m2-m2*cos(2*self.a1-2*self.a2))
+
+        self.a2_a=(num4*(num5+num6+num7))/deno2
+
+
+        self.a1_v+=self.a1_a*self.speed
+        self.a2_v+=self.a2_a*self.speed
+        self.a1+=self.a1_v*self.speed
+        self.a2+=self.a2_v*self.speed
+
+
+        x1=l1*sin(self.a1)
+        y1=-l1*cos(self.a1)
+
+        x2=x1+l2*sin(self.a2)
+        y2=y1-l2*cos(self.a2)
+
+
+        self.canvas.create_line(300,250,300+x1,250+y1,width=5,fill="white",tags="pendulum")
+
+        self.canvas.create_line(300+x1,250+y1,300+x2,250+y2,width=5,fill="white",tags="pendulum")
+
+        self.canvas.create_oval(285+x1,240+y1,305+x1,260+y1,fill="white",outline="white",tags="pendulum")
+
+        self.canvas.create_oval(285+x2,240+y2,305+x2,260+y2,fill="white",outline="white",tags="pendulum")
+
+        self.after(1,self.Calculate)
+
+DoublePendulum().mainloop()
